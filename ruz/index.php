@@ -6,6 +6,6 @@
  * Time: 20:49
  */
 require_once ("lib.php");
-isAdmin() || die();
+
 $o = new RequestsGet("https://ruz.hse.ru/api/search?term=БИВ&type=group");
 var_dump($o);
