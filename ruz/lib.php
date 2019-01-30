@@ -43,16 +43,16 @@ class DataBaseCourse
 {
     private const createDBStm = "CREATE TABLE IF NOT EXISTS mdl_ruz_groups
 (
-  id        BIGINT(10) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  course_id BIGINT(10) NOT NULL REFERENCES mdl_course (id) ON DELETE CASCADE,
-  group_id  BIGINT(10) NOT NULL UNIQUE
+  course_id BIGINT(10) NOT NULL PRIMARY KEY,
+  group_id  BIGINT(10) NOT NULL UNIQUE,
+  CONSTRAINT fk_mdl_course FOREIGN KEY (course_id) REFERENCES mdl_course (id) ON DELETE CASCADE
 )
   ENGINE = InnoDB";
 
     private const createScheduleStm = "CREATE TABLE IF NOT EXISTS mdl_ruz_scheduler
 (
   id          BIGINT(10)   NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  group_id    BIGINT(10)   NOT NULL REFERENCES mdl_ruz_groups (id) ON DELETE CASCADE,
+  group_id    BIGINT(10)   NOT NULL,
   discipline  VARCHAR(100) NOT NULL,
   date_       DATE         NOT NULL,
   beginLesson TIME         NOT NULL,
@@ -61,13 +61,16 @@ class DataBaseCourse
   auditorium  VARCHAR(10)  NOT NULL,
   kindOfWork  VARCHAR(50),
   lecturer    VARCHAR(100) NOT NULL,
-  stream      VARCHAR(200) NOT NULL
-) ENGINE = InnoDB
-";
+  stream      VARCHAR(200) NOT NULL,
+  CONSTRAINT fk_sch_group FOREIGN KEY (group_id) REFERENCES mdl_ruz_groups (group_id) ON DELETE CASCADE
+) ENGINE = InnoDB";
 
     private const DeleteSchedulerStm = "DELETE
 FROM mdl_ruz_scheduler
 WHERE group_id = ?";
+
+    private const InsertCourse = "INSERT INTO mdl_ruz_groups
+VALUES (?, ?)";
 
     private const ruzDate = "Y.m.d";
     private const ruzDuration = 30 * 24 * 60 * 60;
@@ -92,6 +95,7 @@ WHERE group_id = ?";
     public function createCourse($name, $id)
     {
         global $DB;
+
         $data = new stdClass();
         $data->category = 1;
         $data->fullname = $name;
@@ -101,12 +105,23 @@ WHERE group_id = ?";
         $data->groupmode = 2;
         $data->groupmodeforce = 1;
         $data->visible = true;
-        create_course($data);
-
-        $group = new stdClass();
-        $group->course_id = intval($DB->get_record('course', array('shortname' => $name), 'id', MUST_EXIST)->id);
-        $group->group_id = $id;
-        $DB->insert_record("ruz_groups", $group, false);
+        try
+        {
+            create_course($data);
+        }
+        catch (Exception $ex)
+        {
+            return false;
+        }
+        try {
+            $course_id = intval($DB->get_record('course', array('shortname' => $name), 'id', MUST_EXIST)->id);
+            $group = array($course_id,
+                $id);
+            $DB->execute(self::InsertCourse, $group);
+        } catch (Exception $ex) {
+            delete_course($course_id);
+            return $ex->getMessage();
+        }
         return true;
     }
 
