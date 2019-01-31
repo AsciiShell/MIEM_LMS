@@ -72,6 +72,12 @@ WHERE group_id = ?";
     private const InsertCourse = "INSERT INTO mdl_ruz_groups
 VALUES (?, ?)";
 
+    private const SelectCourses = "SELECT *
+FROM mdl_ruz_groups
+       INNER JOIN mdl_course ON mdl_ruz_groups.course_id = mdl_course.id";
+
+    private const SelectCourse = self::SelectCourses . "\nWHERE course_id = ?";
+
     private const ruzDate = "Y.m.d";
     private const ruzDuration = 30 * 24 * 60 * 60;
 
@@ -105,12 +111,9 @@ VALUES (?, ?)";
         $data->groupmode = 2;
         $data->groupmodeforce = 1;
         $data->visible = true;
-        try
-        {
+        try {
             create_course($data);
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             return false;
         }
         try {
@@ -148,6 +151,16 @@ VALUES (?, ?)";
                 $data->stream = $row->stream;
                 $DB->insert_record("ruz_scheduler", $data, false);
             }
+        }
+    }
+
+    public function GetGroup($group = null)
+    {
+        global $DB;
+        if ($group == null) {
+            return $DB->get_records_sql(self::SelectCourses);
+        } else {
+            return $DB->get_record_sql(self::SelectCourse, array($group));
         }
     }
 }
