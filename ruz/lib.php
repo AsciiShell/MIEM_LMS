@@ -53,7 +53,7 @@ class DataBaseCourse
 (
   id          BIGINT(10)   NOT NULL PRIMARY KEY AUTO_INCREMENT,
   group_id    BIGINT(10)   NOT NULL,
-  discipline  VARCHAR(100) NOT NULL,
+  discipline  TEXT NOT NULL,
   date_       DATE         NOT NULL,
   beginLesson TIME         NOT NULL,
   endLesson   TIME         NOT NULL,
@@ -61,7 +61,7 @@ class DataBaseCourse
   auditorium  VARCHAR(10)  NOT NULL,
   kindOfWork  VARCHAR(50),
   lecturer    VARCHAR(100) NOT NULL,
-  stream      VARCHAR(200) NOT NULL,
+  stream      TEXT NOT NULL,
   CONSTRAINT fk_sch_group FOREIGN KEY (group_id) REFERENCES mdl_ruz_groups (group_id) ON DELETE CASCADE
 ) ENGINE = InnoDB";
 
@@ -78,11 +78,11 @@ FROM mdl_ruz_groups
 
     private const SelectCourse = self::SelectCourses . "\nWHERE course_id = ?";
 
-    private const InsertUser = "INSERT INTO mdl_user (auth, confirmed, mnethostid, username, firstname, lastname, email, password)
-VALUES ('manual', 1, 1, ?, ?, ?, ?, ?)";
+    private const InsertUser = "INSERT INTO mdl_user (auth, confirmed, mnethostid, lang, username, firstname, lastname, email, password)
+VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
 
     private const ruzDate = "Y.m.d";
-    private const ruzDuration = 30 * 24 * 60 * 60;
+    private const ruzDuration = 3 * 30 * 24 * 60 * 60;
 
     private static $instance;
 
@@ -134,27 +134,34 @@ VALUES ('manual', 1, 1, ?, ?, ?, ?, ?)";
     public function rusFetcher()
     {
         global $DB;
+        $log = array();
         foreach ($DB->get_records('ruz_groups') as $value) {
-            $out = new RequestsGet(sprintf("https://ruz.hse.ru/api/schedule/group/%s?start=%s&finish=%s&lng=1",
-                $value->group_id,
-                date(self::ruzDate),
-                date(self::ruzDate, time() + self::ruzDuration)));
-            $DB->execute(self::createDBStm, array($value->group_id));
-            foreach ($out->result as $row) {
-                $data = new stdClass();
-                $data->group_id = $value->group_id;
-                $data->discipline = $row->discipline;
-                $data->date_ = str_replace('.', '-', $row->date);
-                $data->beginLesson = $row->beginLesson;
-                $data->endLesson = $row->endLesson;
-                $data->building = $row->building;
-                $data->auditorium = $row->auditorium;
-                $data->kindOfWork = $row->kindOfWork;
-                $data->lecturer = $row->lecturer;
-                $data->stream = $row->stream;
-                $DB->insert_record("ruz_scheduler", $data, false);
+            try {
+                $out = new RequestsGet(sprintf("https://ruz.hse.ru/api/schedule/group/%s?start=%s&finish=%s&lng=1",
+                    $value->group_id,
+                    date(self::ruzDate),
+                    date(self::ruzDate, time() + self::ruzDuration)));
+                $DB->execute(self::DeleteSchedulerStm, array($value->group_id));
+                foreach ($out->result as $row) {
+                    $data = new stdClass();
+                    $data->group_id = $value->group_id;
+                    $data->discipline = $row->discipline;
+                    $data->date_ = str_replace('.', '-', $row->date);
+                    $data->beginLesson = $row->beginLesson;
+                    $data->endLesson = $row->endLesson;
+                    $data->building = $row->building;
+                    $data->auditorium = $row->auditorium;
+                    $data->kindOfWork = $row->kindOfWork;
+                    $data->lecturer = $row->lecturer;
+                    $data->stream = $row->stream;
+                    $DB->insert_record("ruz_scheduler", $data, false);
+                }
+                array_push($log, $value);
+            } catch (Exception $ex) {
+                array_push($log, $ex);
             }
         }
+        return $log;
     }
 
     public function GetGroup($group = null)

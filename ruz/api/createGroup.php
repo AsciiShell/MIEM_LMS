@@ -2,4 +2,5 @@
 require_once("../lib.php");
 $id = intval($_GET["groupID"]);
 $name = $_GET["name"];
-echo DataBaseCourse::getInstance()->createCourse($name, $id);
+header('Content-Type: application/json; charset=utf-8');
+json_encode(DataBaseCourse::getInstance()->createCourse($name, $id), JSON_UNESCAPED_UNICODE);
