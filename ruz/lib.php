@@ -78,6 +78,9 @@ FROM mdl_ruz_groups
 
     private const SelectCourse = self::SelectCourses . "\nWHERE course_id = ?";
 
+    private const InsertUser = "INSERT INTO mdl_user (auth, confirmed, mnethostid, username, firstname, lastname, email, password)
+VALUES ('manual', 1, 1, ?, ?, ?, ?, ?)";
+
     private const ruzDate = "Y.m.d";
     private const ruzDuration = 30 * 24 * 60 * 60;
 
@@ -162,5 +165,12 @@ FROM mdl_ruz_groups
         } else {
             return $DB->get_record_sql(self::SelectCourse, array($group));
         }
+    }
+
+    public function CreateUser($user_name, $f_name, $l_name, $email, $password)
+    {
+        global $DB;
+        $DB->execute(self::InsertUser, array($user_name, $f_name, $l_name, $email, password_hash($password, PASSWORD_DEFAULT)));
+        return true;
     }
 }
