@@ -5,3 +5,5 @@ $out = new RequestsGet(sprintf("https://ruz.hse.ru/api/search?term=%s&type=group
 header('Content-Type: application/json; charset=utf-8');
 if ($out->result)
     echo json_encode($out->result, JSON_UNESCAPED_UNICODE);
+else
+    echo json_encode(array(), JSON_UNESCAPED_UNICODE);

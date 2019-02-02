@@ -12,8 +12,13 @@ function isAdmin()
     }
     return false;
 }
+function RedirectTo($url, $permanent = false)
+{
+    header('Location: ' . $url, true, $permanent ? 301 : 302);
+    exit();
+}
 
-isAdmin() || die();
+isAdmin() || RedirectTo('/login/index.php', false);
 
 class RequestsGet
 {
@@ -179,5 +184,10 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
         global $DB;
         $DB->execute(self::InsertUser, array($user_name, $f_name, $l_name, $email, password_hash($password, PASSWORD_DEFAULT)));
         return true;
+    }
+
+    public function AttachUser($id, $role)
+    {
+        
     }
 }
