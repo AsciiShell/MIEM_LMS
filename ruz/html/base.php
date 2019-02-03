@@ -37,9 +37,9 @@ else
     <nav class="col-xs-5 col-sm-4 col-md-3 col-lg-2">
         <ul class="nav nav-pills flex-column">
 
-            <li class="nav-item"><a class="nav-link <?php echo ($url == "index.php") ? "active" : "" ?>" href="#">Обзор</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo ($url == "edit.php") ? "active" : "" ?>" href="#">Редактирование групп</a></li>
-            <li class="nav-item"><a class="nav-link <?php echo ($url == "someOther.php") ? "active" : "" ?>" href="#">Редактирование курса</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo ($url == "index.php") ? "active" : "" ?>" href="index.php">Обзор групп</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo ($url == "findGroup.php") ? "active" : "" ?>" href="findGroup.php">Поиск групп</a></li>
+            <li class="nav-item"><a class="nav-link <?php echo ($url == "editGroup.php") ? "active" : "" ?>" href="editGroup.php">Редактирование групп</a></li>
         </ul>
     </nav>
     <main class="col-xs-7 col-sm-8 col-md-9 col-lg-10">
