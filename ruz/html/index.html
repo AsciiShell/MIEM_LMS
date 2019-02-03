@@ -1,0 +1,52 @@
+<h1 class="page-header">Панель управлениея</h1>
+<form method="get" action="/ruz/api/findGroup.php" id="form">
+    <label>
+        Поиск группы
+        <input type="text" class="form-control" id="findGroup" name="group">
+    </label>
+</form>
+<div class="form-result">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Группа</th>
+            <th scope="col">Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<script>
+    $(function () {
+        let form = $('#form');
+        form.submit(function (e) {
+            e.preventDefault();
+        });
+        form.find('input').change(
+            function () {
+                $.ajax({
+                    type: 'GET',
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    dataType: 'json',
+                    success: function (data) {
+                        let target = $('div.form-result tbody');
+                        target.empty();
+                        for (let i = 0; i < data.length; i++) {
+                            target.append(`<tr>
+<th scope="row">${data[i]['label']}</th>
+<td>${data[i]['description']}</td>
+<input type="hidden" name="id" value="${data[i]['id']}">
+</tr>`)
+                        }
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(exception);
+                    }
+
+                });
+            }
+        )
+    })
+</script>
