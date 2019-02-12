@@ -173,7 +173,7 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
     {
         global $DB;
         if ($group == null) {
-            return $DB->get_records_sql(self::SelectCourses);
+            return array_values($DB->get_records_sql(self::SelectCourses));
         } else {
             return $DB->get_record_sql(self::SelectCourse, array($group));
         }
