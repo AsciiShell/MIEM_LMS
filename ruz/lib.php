@@ -87,6 +87,12 @@ FROM mdl_ruz_groups
     private const InsertUser = "INSERT INTO mdl_user (auth, confirmed, mnethostid, lang, username, firstname, lastname, email, password)
 VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
 
+    private const SelectScheduler = "SELECT *
+FROM mdl_ruz_scheduler
+WHERE (date_ > current_date OR (date_ = current_date AND endLesson > current_time))
+  AND group_id = ?
+ORDER BY date_, beginLesson";
+
     private const ruzDate = "Y.m.d";
     private const ruzDuration = 3 * 30 * 24 * 60 * 60;
 
@@ -173,7 +179,7 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
     public function GetScheduler($group)
     {
         global $DB;
-        return array_values($DB->get_records("ruz_scheduler", array('group_id' => $group)));
+        return array_values($DB->get_records_sql(self::SelectScheduler, array($group)));
     }
 
     public function GetGroup($group = null)

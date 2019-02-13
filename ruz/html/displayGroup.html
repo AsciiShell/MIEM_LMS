@@ -30,9 +30,9 @@
 <td>${data[i]['group_id']}</td>
 <td>${data[i]['shortname']}</td>
 <td>
-    <button class="btn btn-primary" name="id" value="${data[i]['id']}">Записать пользователей</button>
-    <button class="btn btn-secondary" name="id" value="${data[i]['id']}">Просмотр расписания</button>
-    <button class="btn btn-success" name="id" value="${data[i]['id']}">Управление группой</button>
+    <button class="btn btn-primary"  data-toggle="modal" data-target="#displaySchedulerModal"  data-id="${data[i]['group_id']}">Записать пользователей</button>
+    <button class="btn btn-secondary"  data-toggle="modal" data-target="#displaySchedulerModal"  data-id="${data[i]['group_id']}">Просмотр расписания</button>
+    <button class="btn btn-success"  data-toggle="modal" data-target="#displaySchedulerModal"  data-id="${data[i]['group_id']}">Управление группой</button>
 </td>
 </tr>`)
                 }
@@ -44,3 +44,91 @@
         });
     })
 </script>
+
+<style>
+    .modal-full {
+        min-width: 100%;
+        margin: 0;
+    }
+
+    .modal-full .modal-content {
+        min-height: 100vh;
+    }
+
+    .table-truncate {
+        position: relative;
+    }
+
+    .table-truncate__body {
+        position: absolute;
+        max-width: 95%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<div class="modal fade" id="displaySchedulerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Расписание группы</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Дата</th>
+                        <th scope="col">Время</th>
+                        <th scope="col">Аудитория</th>
+                        <th scope="col">Предмет</th>
+                        <th scope="col">Преподаватель</th>
+                        <th scope="col">Поток</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let modal = $("#displaySchedulerModal");
+        modal.on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget);
+            modal.find('#groupID').val(button.data('id'));
+            modal.find('#name').val(button.data('label'));
+
+            $.ajax({
+                type: 'GET',
+                url: '/ruz/api/ruzDisplay.php',
+                data: {"groupID": button.data('id')},
+                dataType: 'json',
+                success: function (data) {
+                    let target = modal.find('table   tbody');
+                    target.empty();
+                    for (let i = 0; i < data.length; i++) {
+                        target.append(`<tr>
+<th scope="row">${data[i]['date_']}</th>
+<td>${data[i]['beginlesson']}-${data[i]['endlesson']}</td>
+<td>${data[i]['building']}-${data[i]['auditorium']}</td>
+<td>${data[i]['kindofwork']}-${data[i]['discipline']}</td>
+<td>${data[i]['lecturer']}</td>
+<td>${data[i]['stream']}</td>
+</tr>`)
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                }
+
+            });
+        });
+    </script>
+</div>
+
