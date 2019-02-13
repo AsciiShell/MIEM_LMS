@@ -30,9 +30,9 @@
 <td>${data[i]['group_id']}</td>
 <td>${data[i]['shortname']}</td>
 <td>
-    <button class="btn btn-primary"  data-toggle="modal" data-target="#displaySchedulerModal"  data-id="${data[i]['group_id']}">Записать пользователей</button>
+    <button class="btn btn-primary"  data-toggle="modal" data-target="#attachUserModal"  data-id="${data[i]['group_id']}">Записать пользователей</button>
     <button class="btn btn-secondary"  data-toggle="modal" data-target="#displaySchedulerModal"  data-id="${data[i]['group_id']}">Просмотр расписания</button>
-    <button class="btn btn-success"  data-toggle="modal" data-target="#displaySchedulerModal"  data-id="${data[i]['group_id']}">Управление группой</button>
+    <a class="btn btn-success" href="/ruz/editGroup.php?id=${data[i]['group_id']}" role="button">Управление группой</a>
 </td>
 </tr>`)
                 }
@@ -98,11 +98,11 @@
         </div>
     </div>
     <script>
-        let modal = $("#displaySchedulerModal");
-        modal.on('show.bs.modal', function (event) {
+        let modalScheduler = $("#displaySchedulerModal");
+        modalScheduler.on('show.bs.modal', function (event) {
             let button = $(event.relatedTarget);
-            modal.find('#groupID').val(button.data('id'));
-            modal.find('#name').val(button.data('label'));
+            modalScheduler.find('#groupID').val(button.data('id'));
+            modalScheduler.find('#name').val(button.data('label'));
 
             $.ajax({
                 type: 'GET',
@@ -110,7 +110,7 @@
                 data: {"groupID": button.data('id')},
                 dataType: 'json',
                 success: function (data) {
-                    let target = modal.find('table   tbody');
+                    let target = modalScheduler.find('table   tbody');
                     target.empty();
                     for (let i = 0; i < data.length; i++) {
                         target.append(`<tr>
@@ -132,3 +132,75 @@
     </script>
 </div>
 
+<div class="modal fade" id="attachUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить пользователя</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="get" action="/ruz/api/attachUser.php" id="form">
+                    <div class="form-group row">
+                        <label for="user_name" class="col-sm-3 col-form-label">Пользователь</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" name="user_name" id="user_name" required multiple>
+                                <option>Иванов</option>
+                                <option>Петров</option>
+                                <option>Сидоров</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Роль</label>
+                        <div class="btn-group btn-group-toggle col-sm-9" data-toggle="buttons">
+                            <label class="b tn btn-primary active">
+                                <input type="radio" name="options" id="student" autocomplete="off" checked> Ученик
+                            </label>
+                            <label class="btn btn-primary">
+                                <input type="radio" name="options" id="teacher" autocomplete="off"> Учитель
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="submit" class="btn btn-primary" form="form" value="Сохранить">Сохранить</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let modalUser = $("#attachUserModal");
+        let formUser = modalUser.find("form");
+        modalUser.on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget);
+            // Отображение пользователей без группы
+        });
+        formUser.submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data)
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(exception);
+                    }
+
+                });
+                formUser.find('input').each(function () {
+                    $(this).val('')
+                });
+                modalUser.modal('hide');
+
+            }
+        )
+    </script>
+</div>
