@@ -1,1 +1,46 @@
 <h1 class="page-header">Список групп</h1>
+
+<div id="group-list">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Курс</th>
+            <th scope="col">Группа</th>
+            <th scope="col">Название</th>
+            <th scope="col">Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<script>
+    $(function () {
+
+        $.ajax({
+            type: 'GET',
+            url: '/ruz/api/getGroup.php',
+            dataType: 'json',
+            success: function (data) {
+                let target = $('#group-list tbody');
+                target.empty();
+                for (let i = 0; i < data.length; i++) {
+                    target.append(`<tr>
+<th scope="row">${data[i]['course_id']}</th>
+<td>${data[i]['group_id']}</td>
+<td>${data[i]['shortname']}</td>
+<td>
+    <button class="btn btn-primary" name="id" value="${data[i]['id']}">Записать пользователей</button>
+    <button class="btn btn-secondary" name="id" value="${data[i]['id']}">Просмотр расписания</button>
+    <button class="btn btn-success" name="id" value="${data[i]['id']}">Управление группой</button>
+</td>
+</tr>`)
+                }
+            },
+            error: function (jqXHR, exception) {
+                console.log(exception);
+            }
+
+        });
+    })
+</script>

@@ -12,6 +12,7 @@ function isAdmin()
     }
     return false;
 }
+
 function RedirectTo($url, $permanent = false)
 {
     header('Location: ' . $url, true, $permanent ? 301 : 302);
@@ -169,6 +170,12 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
         return $log;
     }
 
+    public function GetScheduler($group)
+    {
+        global $DB;
+        return array_values($DB->get_records("ruz_scheduler", array('group_id' => $group)));
+    }
+
     public function GetGroup($group = null)
     {
         global $DB;
@@ -188,6 +195,6 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
 
     public function AttachUser($id, $role)
     {
-        
+
     }
 }
