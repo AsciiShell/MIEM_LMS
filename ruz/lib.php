@@ -12,6 +12,7 @@ function isAdmin()
     }
     return false;
 }
+
 function RedirectTo($url, $permanent = false)
 {
     header('Location: ' . $url, true, $permanent ? 301 : 302);
@@ -66,7 +67,7 @@ class DataBaseCourse
   auditorium  VARCHAR(10)  NOT NULL,
   kindOfWork  VARCHAR(50),
   lecturer    VARCHAR(100) NOT NULL,
-  stream      TEXT NOT NULL,
+  stream      TEXT,
   CONSTRAINT fk_sch_group FOREIGN KEY (group_id) REFERENCES mdl_ruz_groups (group_id) ON DELETE CASCADE
 ) ENGINE = InnoDB";
 
@@ -85,6 +86,12 @@ FROM mdl_ruz_groups
 
     private const InsertUser = "INSERT INTO mdl_user (auth, confirmed, mnethostid, lang, username, firstname, lastname, email, password)
 VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
+
+    private const SelectScheduler = "SELECT *
+FROM mdl_ruz_scheduler
+WHERE (date_ > current_date OR (date_ = current_date AND endLesson > current_time))
+  AND group_id = ?
+ORDER BY date_, beginLesson";
 
     private const ruzDate = "Y.m.d";
     private const ruzDuration = 3 * 30 * 24 * 60 * 60;
@@ -169,6 +176,12 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
         return $log;
     }
 
+    public function GetScheduler($group)
+    {
+        global $DB;
+        return array_values($DB->get_records_sql(self::SelectScheduler, array($group)));
+    }
+
     public function GetGroup($group = null)
     {
         global $DB;
@@ -188,6 +201,6 @@ VALUES ('manual', 1, 1, 'ru', ?, ?, ?, ?, ?)";
 
     public function AttachUser($id, $role)
     {
-        
+
     }
 }
