@@ -67,7 +67,7 @@ class DataBaseCourse
   auditorium  VARCHAR(10)  NOT NULL,
   kindOfWork  VARCHAR(50),
   lecturer    VARCHAR(100) NOT NULL,
-  stream      TEXT NOT NULL,
+  stream      TEXT,
   CONSTRAINT fk_sch_group FOREIGN KEY (group_id) REFERENCES mdl_ruz_groups (group_id) ON DELETE CASCADE
 ) ENGINE = InnoDB";
 
