@@ -1,0 +1,84 @@
+<h1 class="page-header">Редактор группы</h1>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal" data-whatever="@mdo">Добавить пользоватея</button>
+
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Создание пользователя</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="get" action="/ruz/api/createUser.php" id="form">
+                    <div class="form-group row">
+                        <label for="user_name" class="col-sm-3 col-form-label">Имя пользователя</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="user_name" id="user_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="f_name" class="col-sm-3 col-form-label">Имя</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="f_name" id="f_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="l_name" class="col-sm-3 col-form-label">Фамилия</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="l_name" id="l_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="email" class="col-sm-3 col-form-label">Почта</label>
+                        <div class="col-sm-9">
+                            <input type="email" class="form-control" name="email" id="email" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-3 col-form-label">Пароль</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="password" id="password" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="submit" class="btn btn-primary" form="form" value="Сохранить">Сохранить</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let modal = $("#addUserModal");
+        let form = $('#form');
+        form.submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data)
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(exception);
+                    }
+
+                });
+                form.find('input').each(function () {
+                    $(this).val('')
+                });
+                modal.modal('hide');
+
+            }
+        )
+    </script>
+</div>
+
+
+<p>Тут надо редактировать какую то информацию о группе. Но какую?</p>
