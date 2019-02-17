@@ -26,7 +26,7 @@
                 target.empty();
                 for (let i = 0; i < data.length; i++) {
                     target.append(`<tr>
-<th scope="row">${data[i]['course_id']}</th>
+<td><a class="btn btn-success" href="/course/view.php?id=${data[i]['course_id']}" role="button">Перейти</a></td>
 <td>${data[i]['group_id']}</td>
 <td>${data[i]['shortname']}</td>
 <td>
