@@ -94,7 +94,7 @@ WHERE (date_ > current_date OR (date_ = current_date AND endLesson > current_tim
 ORDER BY date_, beginLesson";
 
     private const ruzDate = "Y.m.d";
-    private const ruzDuration = 3 * 30 * 24 * 60 * 60;
+    private const ruzDuration = 1 * 30 * 24 * 60 * 60;
 
     private static $instance;
 
@@ -199,8 +199,64 @@ ORDER BY date_, beginLesson";
         return true;
     }
 
-    public function AttachUser($id, $role)
-    {
+    const SelectUsersAll = "SELECT id, username, firstname, lastname
+FROM mdl_user
+WHERE confirmed = 1
+  AND deleted = 0
+  AND suspended = 0";
+    const SelectNewStudents = "SELECT id, username, firstname, lastname
+FROM mdl_user
+WHERE id NOT IN (SELECT DISTINCT userid FROM mdl_user_enrolments)
+  AND confirmed = 1
+  AND deleted = 0
+  AND suspended = 0";
 
+    const SelectUser = "SELECT id, username, firstname, lastname
+FROM mdl_user
+WHERE id = ?
+  AND confirmed = 1
+  AND deleted = 0
+  AND suspended = 0";
+
+    public function GetUsers($id, $enroll)
+    {
+        global $DB;
+        if ($id == null) {
+            if ($enroll) {
+                return array_values($DB->get_records_sql(self::SelectNewStudents));
+            } else {
+                return array_values($DB->get_records_sql(self::SelectUsersAll));
+            }
+        } else {
+            return $DB->get_record_sql(self::SelectUser, array($id));
+        }
+    }
+
+    private const EnrollUsers = "INSERT INTO mdl_user_enrolments
+VALUES (null,
+        0,
+        (SELECT id
+         FROM mdl_enrol
+         WHERE courseid =
+               (SELECT course_id FROM mdl_ruz_groups WHERE group_id = ?)
+           AND enrol = 'manual'),
+        ?,
+        UNIX_TIMESTAMP(),
+        0,
+        1,
+        UNIX_TIMESTAMP(),
+        UNIX_TIMESTAMP())";
+
+    public function AttachUsers($course_id, $role, $users)
+    {
+        global $DB;
+        if ($role) {
+            foreach ($users as $user) {
+                $DB->execute(self::EnrollUsers, array($course_id, $user));
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

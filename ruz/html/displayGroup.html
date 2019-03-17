@@ -15,6 +15,8 @@
     </table>
 </div>
 <script>
+    users = [];
+    allUsers = [];
     $(function () {
 
         $.ajax({
@@ -36,6 +38,21 @@
 </td>
 </tr>`)
                 }
+            },
+            error: function (jqXHR, exception) {
+                console.log(exception);
+            }
+
+        });
+
+
+        $.ajax({
+            type: 'GET',
+            url: '/ruz/api/getUser.php',
+            dataType: 'json',
+            success: function (data) {
+                users = data;
+                allUsers = users;
             },
             error: function (jqXHR, exception) {
                 console.log(exception);
@@ -142,17 +159,23 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="get" action="/ruz/api/attachUser.php" id="form">
+                <form method="POST" action="/ruz/api/attachUser.php" id="form">
                     <div class="form-group row">
                         <label for="user_name" class="col-sm-3 col-form-label">Пользователь</label>
                         <div class="col-sm-9">
-                            <select class="form-control" name="user_name" id="user_name" required multiple>
-                                <option>Иванов</option>
-                                <option>Петров</option>
-                                <option>Сидоров</option>
+                            <select class="form-control" name="user_id[]" id="user_name" required multiple>
                             </select>
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Тип</label>
+                        <div class="btn-group btn-group-toggle col-sm-3" data-toggle="buttons">
+                            <label class="btn btn-outline-secondary active">
+                                <input type="checkbox" id="statusNotEnrolled" autocomplete="off" checked>Не записаны
+                            </label>
+                        </div>
+                    </div>
+                    <input type="hidden" name="course_id" id="course_id">
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label">Роль</label>
                         <div class="btn-group btn-group-toggle col-sm-9" data-toggle="buttons">
@@ -175,19 +198,49 @@
     <script>
         let modalUser = $("#attachUserModal");
         let formUser = modalUser.find("form");
+
+        function DrawUsers() {
+            let target = modalUser.find("#user_name").empty();
+            for (let i = 0; i < users.length; i++) {
+                target.append(`<option value="${users[i]['id']}">${users[i]['username']} - ${users[i]['firstname']} ${users[i]['lastname']}</option>`)
+            }
+        }
+
         modalUser.on('show.bs.modal', function (event) {
-            let button = $(event.relatedTarget);
-            // Отображение пользователей без группы
+            modalUser.find("#course_id").val($(event.relatedTarget).data("id"));
+            DrawUsers();
+        });
+
+        $("#statusNotEnrolled").change(function () {
+            if ($(this).is(":checked")) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/ruz/api/getUser.php?enroll',
+                    dataType: 'json',
+                    success: function (data) {
+                        users = data;
+                        DrawUsers();
+                    },
+                    error: function (jqXHR, exception) {
+                        console.log(exception);
+                    }
+
+                });
+            } else {
+                users = allUsers;
+                DrawUsers();
+            }
         });
         formUser.submit(function (e) {
                 e.preventDefault();
 
                 $.ajax({
-                    type: form.attr('method'),
-                    url: form.attr('action'),
-                    data: form.serialize(),
+                    type: formUser.attr('method'),
+                    url: formUser.attr('action'),
+                    data: formUser.serialize(),
                     dataType: 'json',
                     success: function (data) {
+                        window.location.reload();
                         console.log(data)
                     },
                     error: function (jqXHR, exception) {
