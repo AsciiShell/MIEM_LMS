@@ -1,5 +1,27 @@
 # CHANGE HISTORY
 
+### 30 January 2018. 3.6.0
+
+ * Add a new experimental feature that allows students to attach files to
+   their submissions. The attached files are loaded into the working directory
+   during the run.
+ * Add a *Feedback* dropdown to the question authoring form that allows the
+   question author to display or hide the result table regardless of the
+   behaviour mode chosen for the quiz.
+ * Fix bug in missing prototype error message (extraneous junk included, due
+   to an exception being thrown).
+
+### 18 November 2018. 3.5.3+
+
+ * Bug fix: answerbox preloads of greater than ~1k generated debugging error
+   messages (if developer-level messages were enabled). Thanks Tim Hunt.
+ * Bug fix: Twig-all was not being applied to the question's General Feedback.
+ * Improve handling of a failed unserialise of a legacy question attempt, which
+   can (rarely) occur if a complete course, including student activity attempts,
+   is moved between sites with different Moodle versions or database charsets.
+ * Improve handling of Twig errors when editing questions that use TwigAll in
+   conjunction with ValidateOnSave.
+
 ### 29 October 2018. 3.5.3
 
  * Bug fix: installing CodeRunner on Moodle 3.5 with error debug messages
