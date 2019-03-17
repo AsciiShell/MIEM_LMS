@@ -199,8 +199,15 @@ ORDER BY date_, beginLesson";
         return true;
     }
 
-    public function AttachUser($id, $role)
+    const SelectUsersAll = "SELECT id, username, firstname, lastname FROM mdl_user WHERE confirmed = 1 AND deleted = 0 AND suspended = 0";
+    const SelectUser = "SELECT id, username, firstname, lastname FROM mdl_user WHERE id = ? AND confirmed = 1 AND deleted = 0 AND suspended = 0";
+    public function GetUsers($id)
     {
-
+        global $DB;
+        if ($id == null){
+            return array_values($DB->get_records_sql(self::SelectUsersAll));
+        }else{
+            return $DB->get_record_sql(self::SelectUser, array($id));
+        }
     }
 }
