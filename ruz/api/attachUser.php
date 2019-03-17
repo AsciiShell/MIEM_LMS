@@ -1,7 +1,7 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: alex1
- * Date: 20.01.2019
- * Time: 15:54
- */
+require_once("../lib.php");
+$course_id = $_POST["course_id"];
+$isStudent = $_POST["options"] == "on";
+$out = DataBaseCourse::getInstance()->AttachUsers($course_id, $isStudent, $_POST['user_id']);
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($out, JSON_UNESCAPED_UNICODE);
