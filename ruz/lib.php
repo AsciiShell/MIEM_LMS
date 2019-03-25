@@ -19,7 +19,12 @@ function RedirectTo($url, $permanent = false)
     exit();
 }
 
-isAdmin() || RedirectTo('/login/index.php', false);
+function isCommandLineInterface()
+{
+    return (php_sapi_name() === 'cli');
+}
+
+isAdmin() || isCommandLineInterface() || RedirectTo('/login/index.php', false);
 
 class RequestsGet
 {
