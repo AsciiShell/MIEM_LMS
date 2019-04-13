@@ -13,15 +13,29 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Ordering question type javascript plugins definition
+ * Privacy Subsystem implementation for quiz_gradingstudents.
  *
- * @package    qtype_ordering
- * @copyright  2014 Gordon Bateson (gordon.bateson@gmail.com)
+ * @package    quiz_gradingstudents
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$plugins = array(
-    'ui.touch-punch' => array('files' => array('jquery-ui.touch-punch.js'))
-);
+namespace quiz_gradingstudents\privacy;
+defined('MOODLE_INTERNAL') || die();
+/**
+ * Privacy Subsystem for quiz_gradingstudents implementing null_provider.
+ *
+ * @copyright  2018 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}

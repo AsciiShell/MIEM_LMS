@@ -1,11 +1,14 @@
 The manual grading by student quiz report
+https://moodle.org/plugins/quiz_gradingstudents
 
 This 'report' is actually a tool like the standard Manual grading quiz report,
 but which lets you grade all the responses by one student, rather than all
 the responses to one question.
 
-You can install it from the Moodle plugins database
-http://moodle.org/plugins/view.php?plugin=quiz_gradingstudents
+This version of the plugin, which is compatible with Moodle 3.4+ and later.
+Older versions of this plugin will work with older Moodle versions.
+
+You can install it from the Moodle plugins database using the link above.
 
 Alternatively, you can install it using git. In the top-level folder of your
 Moodle install, type the command:

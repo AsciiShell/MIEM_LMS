@@ -35,12 +35,15 @@ class qtype_ddmatch_edit_form extends question_edit_form {
 
     protected function get_per_answer_fields($mform, $label, $gradeoptions,
             &$repeatedoptions, &$answersoption) {
+        $mform->addElement('static', 'answersinstruct',
+                get_string('availablechoices', 'qtype_match'),
+                get_string('filloutthreeqsandtwoas', 'qtype_match'));
+
         $repeated = array();
-        $repeated[] = $mform->createElement('header', 'answerhdr', $label);
         $repeated[] = $mform->createElement('editor', 'subquestions',
-                get_string('question'), array('rows'=>3), $this->editoroptions);
+                $label, array('rows' => 3), $this->editoroptions);
         $repeated[] = $mform->createElement('editor', 'subanswers',
-                get_string('answer'), array('rows'=>3), $this->editoroptions);
+                get_string('answer'), array('rows' => 3), $this->editoroptions);
         $repeatedoptions['subquestions']['type'] = PARAM_RAW;
         $repeatedoptions['subanswers']['type'] = PARAM_RAW;
         $answersoption = 'subquestions';
@@ -58,15 +61,17 @@ class qtype_ddmatch_edit_form extends question_edit_form {
         $mform->addHelpButton('shuffleanswers', 'shuffle', 'qtype_match');
         $mform->setDefault('shuffleanswers', 1);
 
-        $mform->addElement('static', 'answersinstruct',
-                get_string('availablechoices', 'qtype_match'),
-                get_string('filloutthreeqsandtwoas', 'qtype_match'));
-        $mform->closeHeaderBefore('answersinstruct');
-
         $this->add_per_answer_fields($mform, get_string('questionno', 'question', '{no}'), 0);
 
         $this->add_combined_feedback_fields(true);
         $this->add_interactive_settings(true, true);
+    }
+
+    /**
+     * Language string to use for 'Add {no} more {whatever we call answers}'.
+     */
+    protected function get_more_choices_string() {
+        return get_string('blanksforxmorequestions', 'qtype_match');
     }
 
     protected function data_preprocessing($question) {
@@ -139,18 +144,14 @@ class qtype_ddmatch_edit_form extends question_edit_form {
             }
         }
         $numberqanda = new stdClass();
-        $numberqanda->q = 2;
-        $numberqanda->a = 3;
+        $numberqanda->q = 1;
+        $numberqanda->a = 2;
         if ($questioncount < 1) {
             $errors['subquestions[0]'] =
                     get_string('notenoughqsandas', 'qtype_match', $numberqanda);
         }
-        if ($questioncount < 2) {
-            $errors['subquestions[1]'] =
-                    get_string('notenoughqsandas', 'qtype_match', $numberqanda);
-        }
-        if ($answercount < 3) {
-            $errors['subanswers[2]'] =
+        if ($answercount < 2) {
+            $errors['subanswers[1]'] =
                     get_string('notenoughqsandas', 'qtype_match', $numberqanda);
         }
         return $errors;

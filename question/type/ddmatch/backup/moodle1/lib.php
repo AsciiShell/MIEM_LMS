@@ -23,7 +23,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Matching question type conversion handler
+ * Matching question type conversion handler.
  */
 class moodle1_qtype_ddmatch_handler extends moodle1_qtype_handler {
 
@@ -37,13 +37,13 @@ class moodle1_qtype_ddmatch_handler extends moodle1_qtype_handler {
     }
 
     /**
-     * Appends the ddmatch specific information to the question
+     * Appends the ddmatch specific information to the question.
      */
     public function process_question(array $data, array $raw) {
         global $CFG;
 
-        // Populate the list of matches first to get their ids
-        // note that the field is re-populated on restore anyway but let us
+        // Populate the list of matches first to get their ids.
+        // Note that the field is re-populated on restore anyway but let us
         // do our best to produce valid backup files.
         $matchids = array();
         if (isset($data['ddmatchs']['match'])) {
