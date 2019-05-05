@@ -252,16 +252,23 @@ VALUES (null,
         UNIX_TIMESTAMP(),
         UNIX_TIMESTAMP())";
 
+    private const EnrollUserRole = "INSERT INTO mdl_role_assignments
+VALUES (null, ?, (SELECT id FROM mdl_context WHERE contextlevel=50 AND instanceid=(SELECT course_id FROM mdl_ruz_groups WHERE group_id = ?)), ?,UNIX_TIMESTAMP(), 0, '',0, 0)";
+
     public function AttachUsers($course_id, $role, $users)
     {
         global $DB;
-        if ($role) {
-            foreach ($users as $user) {
-                $DB->execute(self::EnrollUsers, array($course_id, $user));
-            }
-            return true;
-        } else {
-            return false;
+        if ($role === "teacher")
+            $role = 3;
+        else
+            $role = 5; // Student
+        foreach ($users as $user) {
+            $DB->execute(self::EnrollUsers, array($course_id, $user));
+            $DB->execute(self::EnrollUserRole, array($role, $course_id, $user));
         }
+
+
+        return true;
+
     }
 }
