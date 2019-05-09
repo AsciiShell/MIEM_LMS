@@ -13,6 +13,12 @@ function isAdmin()
     return false;
 }
 
+function isUser()
+{
+    global $USER;
+    return $USER->id !== 0;
+}
+
 function RedirectTo($url, $permanent = false)
 {
     header('Location: ' . $url, true, $permanent ? 301 : 302);
@@ -24,7 +30,6 @@ function isCommandLineInterface()
     return (php_sapi_name() === 'cli');
 }
 
-isAdmin() || isCommandLineInterface() || RedirectTo('/login/index.php', false);
 
 class RequestsGet
 {
@@ -270,5 +275,16 @@ VALUES (null, ?, (SELECT id FROM mdl_context WHERE contextlevel=50 AND instancei
 
         return true;
 
+    }
+
+    private const SelectUserCourses = self ::SelectCourses . "\nWHERE course_id IN (
+    SELECT courseid
+    FROM mdl_enrol
+    WHERE id IN (SELECT enrolid FROM mdl_user_enrolments WHERE userid = ?))";
+
+    public function GetUserCourses()
+    {
+        global $DB, $USER;
+        return array_values($DB->get_records_sql(self::SelectUserCourses, array($USER->id)));
     }
 }
