@@ -1,5 +1,6 @@
 <?php
 require_once("../lib.php");
+isAdmin() ||  RedirectTo('/login/index.php', false);
 $user_name = $_GET["user_name"];
 $f_name = $_GET["f_name"];
 $l_name = $_GET["l_name"];

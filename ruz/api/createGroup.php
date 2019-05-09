@@ -1,5 +1,6 @@
 <?php
 require_once("../lib.php");
+isAdmin() ||  RedirectTo('/login/index.php', false);
 $id = intval($_GET["groupID"]);
 $name = $_GET["name"];
 header('Content-Type: application/json; charset=utf-8');
