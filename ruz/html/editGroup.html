@@ -1,7 +1,9 @@
 <h1 class="page-header">Редактор группы</h1>
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal" data-whatever="@mdo">Добавить пользоватея</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">Добавить пользоватея</button>
 <a role="button" class="btn btn-secondary" href="/admin/tool/uploaduser/index.php" target="_blank">Множественное добавление</a>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#visits">Управление посещением</button>
+
 
 <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -80,3 +82,82 @@
         )
     </script>
 </div>
+
+<div class="modal fade" id="visits" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Посещаемость группы</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">ФиО</th>
+                        <th scope="col">Дата2</th>
+                        <th scope="col">Дата3</th>
+                        <th scope="col">Дата4</th>
+                        <th scope="col">Дата5</th>
+                        <th scope="col">Дата6</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">Иванов</th>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let modalScheduler = $("#visits");
+        let group_id;
+        $(function () {
+            group_id = $("#group_id").val();
+            console.log(group_id);
+        });
+
+        modalScheduler.on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget);
+            modalScheduler.find('#groupID').val(button.data('id'));
+            modalScheduler.find('#name').val(button.data('label'));
+
+            $.ajax({
+                type: 'GET',
+                url: '/ruz/api/ruzDisplay.php',
+                data: {"groupID": button.data('id')},
+                dataType: 'json',
+                success: function (data) {
+                    let target = modalScheduler.find('table   tbody');
+                    target.empty();
+                    for (let i = 0; i < data.length; i++) {
+                        target.append(`<tr>
+<th scope="row">${data[i]['date_']}</th>
+<td>${data[i]['beginlesson']}-${data[i]['endlesson']}</td>
+<td>${data[i]['building']}-${data[i]['auditorium']}</td>
+<td>${data[i]['kindofwork']}-${data[i]['discipline']}</td>
+<td>${data[i]['lecturer']}</td>
+<td>${data[i]['stream']}</td>
+</tr>`)
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                }
+
+            });
+        });
+    </script>

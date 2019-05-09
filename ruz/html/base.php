@@ -1,6 +1,6 @@
 <?php global $template;
 $url = explode("/", $_SERVER["SCRIPT_NAME"]);
-if(count($url) == 3 && $url[0] == "" && $url[1] == "ruz" && $url[2] != "")
+if (count($url) == 3 && $url[0] == "" && $url[1] == "ruz" && $url[2] != "")
     $url = $url[2];
 else
     $url = null;
@@ -17,6 +17,29 @@ else
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+    <style>
+        .modal-full {
+            min-width: 100%;
+            margin: 0;
+        }
+
+        .modal-full .modal-content {
+            min-height: 100vh;
+        }
+
+        .table-truncate {
+            position: relative;
+        }
+
+        .table-truncate__body {
+            position: absolute;
+            max-width: 95%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 </head>
 
 <body>
@@ -46,5 +69,6 @@ else
         <?php echo $template["body"] ?>
     </main>
 </div>
+<?php echo ($url == "editGroup.php") ? "<input type='hidden' id='group_id' value='" . $_GET["id"] . "'>" : '' ?>
 </body>
 </html>
