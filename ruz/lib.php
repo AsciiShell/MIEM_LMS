@@ -99,6 +99,7 @@ class DataBaseCourse
 
     private const createVisitStm = "CREATE TABLE IF NOT EXISTS mdl_ruz_visit
 (
+    id        BIGINT(10) NOT NULL PRIMARY KEY AUTO_INCREMENT,
     lesson_id BIGINT(10) NOT NULL,
     user_id   BIGINT(10) NOT NULL,
     status    boolean    NOT NULL default false,
@@ -166,7 +167,8 @@ ORDER BY date_, beginLesson";
 
     }
 
-    public function Migrate(){
+    public function Migrate()
+    {
         global $DB;
         $DB->execute(self::createDBStm);
         $DB->execute(self::createScheduleStm);
@@ -174,6 +176,7 @@ ORDER BY date_, beginLesson";
         $DB->execute(self::createVisitStm);
         $DB->execute(self::createVisitMoveProcedure);
     }
+
     public static function getInstance()
     {
         if (is_null(self::$instance)) {
@@ -347,8 +350,9 @@ VALUES (null, ?, (SELECT id FROM mdl_context WHERE contextlevel=50 AND instancei
         return array_values($DB->get_records_sql(self::SelectUserCourses, array($USER->id)));
     }
 
-    private const SelectStudentsForCourse = "SELECT userid
+    private const SelectStudentsForCourse = "SELECT userid, firstname, lastname
 FROM mdl_role_assignments
+INNER  JOIN mdl_user ON userid = mdl_user.id
 WHERE roleid = 5
   AND contextid IN (
     SELECT id
@@ -365,5 +369,46 @@ WHERE roleid = 5
     {
         global $DB;
         return array_values($DB->get_records_sql(self::SelectStudentsForCourse, array($id)));
+    }
+
+    private const SelectLessonsForCourse = "SELECT id, discipline, date_ FROM mdl_ruz_lesson WHERE group_id = ?";
+
+    public function GetLessonsForCourse($id)
+    {
+        global $DB;
+        return array_values($DB->get_records_sql(self::SelectLessonsForCourse, array($id)));
+    }
+
+    private const SelectVisitsForCourse = "SELECT *
+FROM mdl_ruz_visit
+WHERE user_id IN (SELECT userid
+                  FROM mdl_role_assignments
+                  WHERE roleid = 5
+                    AND contextid IN (
+                      SELECT id
+                      FROM mdl_context
+                      WHERE contextlevel = 50
+                        AND instanceid = (
+                          SELECT course_id
+                          FROM mdl_ruz_groups
+                          WHERE group_id = ?
+                      )
+                  ))
+  AND lesson_id IN (SELECT id FROM mdl_ruz_lesson WHERE group_id = ?)";
+
+    public function GetVisitsForCourse($id)
+    {
+        global $DB;
+        return array_values($DB->get_records_sql(self::SelectVisitsForCourse, array($id, $id)));
+    }
+
+    private const InsertVisitCourse = "INSERT INTO mdl_ruz_visit (id, lesson_id, user_id, status)
+VALUES (null, ?, ?, ?)
+ON DUPLICATE KEY UPDATE status = ?";
+
+    public function InsertVisitForCourse($lesson_id, $user_id, $status)
+    {
+        global $DB;
+        return $DB->execute(self::InsertVisitCourse, array($lesson_id, $user_id, $status, $status));
     }
 }

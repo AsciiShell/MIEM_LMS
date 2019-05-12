@@ -92,28 +92,13 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <table class="table table-striped">
+            <div class="modal-body table-responsive">
+                <table class="table table-striped" id="visit_table">
                     <thead>
                     <tr>
-                        <th scope="col">ФиО</th>
-                        <th scope="col">Дата2</th>
-                        <th scope="col">Дата3</th>
-                        <th scope="col">Дата4</th>
-                        <th scope="col">Дата5</th>
-                        <th scope="col">Дата6</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">Иванов</th>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-
-                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -125,33 +110,29 @@
     <script>
         let modalScheduler = $("#visits");
         let group_id;
+        let table_data;
+        let students = {};
+        let lessons = {};
         $(function () {
             group_id = $("#group_id").val();
             console.log(group_id);
         });
 
-        modalScheduler.on('show.bs.modal', function (event) {
-            let button = $(event.relatedTarget);
-            modalScheduler.find('#groupID').val(button.data('id'));
-            modalScheduler.find('#name').val(button.data('label'));
-
+        function handleClickCell(sender) {
+            let target = $('#visit_table')[0];
+            let status = target.rows[+sender.dataset.row].cells[+sender.dataset.col].innerText === "Н" ? 1 : 0;
+            let lesson_id = table_data["lessons"][+sender.dataset.col - 1]["id"];
+            let user_id = table_data["students"][+sender.dataset.row - 1]["userid"];
             $.ajax({
                 type: 'GET',
-                url: '/ruz/api/ruzDisplay.php',
-                data: {"groupID": button.data('id')},
+                url: '/ruz/api/student/InsertMark.php',
+                data: {"status": status, "lesson_id": lesson_id, "user_id": user_id},
                 dataType: 'json',
                 success: function (data) {
-                    let target = modalScheduler.find('table   tbody');
-                    target.empty();
-                    for (let i = 0; i < data.length; i++) {
-                        target.append(`<tr>
-<th scope="row">${data[i]['date_']}</th>
-<td>${data[i]['beginlesson']}-${data[i]['endlesson']}</td>
-<td>${data[i]['building']}-${data[i]['auditorium']}</td>
-<td>${data[i]['kindofwork']}-${data[i]['discipline']}</td>
-<td>${data[i]['lecturer']}</td>
-<td>${data[i]['stream']}</td>
-</tr>`)
+                    if (data){
+                        target.rows[+sender.dataset.row].cells[+sender.dataset.col].innerText = "+";
+                    }else{
+                        console.log(data);
                     }
                 },
                 error: function (jqXHR, exception) {
@@ -159,5 +140,55 @@
                 }
 
             });
+            console.log(sender);
+        }
+
+        modalScheduler.on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget);
+
+            $.ajax({
+                type: 'GET',
+                url: '/ruz/api/student/getTable.php',
+                data: {"id": group_id},
+                dataType: 'json',
+                success: function (data) {
+                    let target = modalScheduler.find('table   thead  tr');
+                    target.empty().append(`<th scope="col">ФИО</th>`);
+                    for (let i = 0; i < data["lessons"].length; i++) {
+                        lessons[data["lessons"][i]["id"]] = data["lessons"][i];
+                        lessons[data["lessons"][i]["id"]]["index"] = i;
+                        target.append(`<th scope="col">${data["lessons"][i]['date_']} ${data["lessons"][i]['discipline']}</th>`)
+                    }
+
+                    target = modalScheduler.find('table   tbody');
+                    target.empty();
+                    for (let i = 0; i < data["students"].length; i++) {
+                        students[data["students"][i]["userid"]] = data["students"][i];
+                        students[data["students"][i]["userid"]]["index"] = i;
+                        let empBody = "";
+                        for (let j = 0; j < data["lessons"].length; j++) {
+                            empBody += `<td onclick="handleClickCell(this)" data-col="${j + 1}" data-row="${i + 1}">Н</td>`;
+                        }
+                        target.append(`<tr>
+<th scope="row">${data["students"][i]["firstname"]} ${data["students"][i]["lastname"]}</th>
+${empBody}
+</tr>`)
+                    }
+                    target = modalScheduler.find('table');
+                    for (let i = 0; i < data["visits"].length; i++) {
+                        // TODO was here
+                        let c = lessons[+data["visits"][i]["lesson_id"]]["index"];
+                        let r = students[+data["visits"][i]["user_id"]]["index"];
+                        target[0].rows[r + 1].cells[c + 1].innerText = +data["visits"][i]["status"] ? "+" : "Н";
+                    }
+                    table_data = data;
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                }
+
+            });
+
         });
     </script>
+</div>
