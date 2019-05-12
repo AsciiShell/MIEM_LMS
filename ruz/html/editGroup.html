@@ -1,7 +1,9 @@
 <h1 class="page-header">Редактор группы</h1>
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal" data-whatever="@mdo">Добавить пользоватея</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">Добавить пользоватея</button>
 <a role="button" class="btn btn-secondary" href="/admin/tool/uploaduser/index.php" target="_blank">Множественное добавление</a>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#visits">Управление посещением</button>
+
 
 <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -78,5 +80,115 @@
 
             }
         )
+    </script>
+</div>
+
+<div class="modal fade" id="visits" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-full" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Посещаемость группы</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body table-responsive">
+                <table class="table table-striped" id="visit_table">
+                    <thead>
+                    <tr>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let modalScheduler = $("#visits");
+        let group_id;
+        let table_data;
+        let students = {};
+        let lessons = {};
+        $(function () {
+            group_id = $("#group_id").val();
+            console.log(group_id);
+        });
+
+        function handleClickCell(sender) {
+            let target = $('#visit_table')[0];
+            let status = target.rows[+sender.dataset.row].cells[+sender.dataset.col].innerText === "Н" ? 1 : 0;
+            let lesson_id = table_data["lessons"][+sender.dataset.col - 1]["id"];
+            let user_id = table_data["students"][+sender.dataset.row - 1]["userid"];
+            $.ajax({
+                type: 'GET',
+                url: '/ruz/api/student/InsertMark.php',
+                data: {"status": status, "lesson_id": lesson_id, "user_id": user_id},
+                dataType: 'json',
+                success: function (data) {
+                    if (data){
+                        target.rows[+sender.dataset.row].cells[+sender.dataset.col].innerText = "+";
+                    }else{
+                        console.log(data);
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                }
+
+            });
+            console.log(sender);
+        }
+
+        modalScheduler.on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget);
+
+            $.ajax({
+                type: 'GET',
+                url: '/ruz/api/student/getTable.php',
+                data: {"id": group_id},
+                dataType: 'json',
+                success: function (data) {
+                    let target = modalScheduler.find('table   thead  tr');
+                    target.empty().append(`<th scope="col">ФИО</th>`);
+                    for (let i = 0; i < data["lessons"].length; i++) {
+                        lessons[data["lessons"][i]["id"]] = data["lessons"][i];
+                        lessons[data["lessons"][i]["id"]]["index"] = i;
+                        target.append(`<th scope="col">${data["lessons"][i]['date_']} ${data["lessons"][i]['discipline']}</th>`)
+                    }
+
+                    target = modalScheduler.find('table   tbody');
+                    target.empty();
+                    for (let i = 0; i < data["students"].length; i++) {
+                        students[data["students"][i]["userid"]] = data["students"][i];
+                        students[data["students"][i]["userid"]]["index"] = i;
+                        let empBody = "";
+                        for (let j = 0; j < data["lessons"].length; j++) {
+                            empBody += `<td onclick="handleClickCell(this)" data-col="${j + 1}" data-row="${i + 1}">Н</td>`;
+                        }
+                        target.append(`<tr>
+<th scope="row">${data["students"][i]["firstname"]} ${data["students"][i]["lastname"]}</th>
+${empBody}
+</tr>`)
+                    }
+                    target = modalScheduler.find('table');
+                    for (let i = 0; i < data["visits"].length; i++) {
+                        // TODO was here
+                        let c = lessons[+data["visits"][i]["lesson_id"]]["index"];
+                        let r = students[+data["visits"][i]["user_id"]]["index"];
+                        target[0].rows[r + 1].cells[c + 1].innerText = +data["visits"][i]["status"] ? "+" : "Н";
+                    }
+                    table_data = data;
+                },
+                error: function (jqXHR, exception) {
+                    console.log(exception);
+                }
+
+            });
+
+        });
     </script>
 </div>

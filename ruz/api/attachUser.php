@@ -1,5 +1,6 @@
 <?php
 require_once("../lib.php");
+isAdmin() ||  RedirectTo('/login/index.php', false);
 $course_id = $_POST["course_id"];
 $role = $_POST["role"];
 $out = DataBaseCourse::getInstance()->AttachUsers($course_id, $role, $_POST['user_id']);
