@@ -130,7 +130,7 @@
                 dataType: 'json',
                 success: function (data) {
                     if (data){
-                        target.rows[+sender.dataset.row].cells[+sender.dataset.col].innerText = "+";
+                        target.rows[+sender.dataset.row].cells[+sender.dataset.col].innerText = status ? "+" : "Н";
                     }else{
                         console.log(data);
                     }
